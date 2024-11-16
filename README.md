@@ -342,6 +342,7 @@ None
 ```
 
 ## Module 3.4 Graph Comparison:
+<img src="matrix_multiplication_performance.png">
 
 ## Module 3.5 Training Results:
 
