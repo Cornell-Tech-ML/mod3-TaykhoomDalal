@@ -176,13 +176,19 @@ def tensor_map(
         )
 
         if same_shape and same_strides:
-            for i in prange(len(out)):
+            for i in prange(
+                len(out)
+            ):  # main loop in parallel & when out and in are stride-aligned, no indexing
                 out[i] = fn(in_storage[i])
 
         else:
-            for i in prange(len(out)):
-                out_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
-                in_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
+            for i in prange(len(out)):  # main loop in parallel
+                out_index: Index = np.empty(
+                    MAX_DIMS, dtype=np.int32
+                )  # indices use numpy buffers
+                in_index: Index = np.empty(
+                    MAX_DIMS, dtype=np.int32
+                )  # indices use numpy buffers
 
                 to_index(i, out_shape, out_index)
                 o = index_to_position(out_index, out_strides)
@@ -244,14 +250,22 @@ def tensor_zip(
         )
 
         if same_shape and same_strides:
-            for i in prange(len(out)):
+            for i in prange(
+                len(out)
+            ):  # main loop in parallel & when out, a, b are stride-aligned, no indexing
                 out[i] = fn(a_storage[i], b_storage[i])
 
         else:
-            for i in prange(len(out)):
-                out_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
-                a_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
-                b_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
+            for i in prange(len(out)):  # main loop in parallel
+                out_index: Index = np.empty(
+                    MAX_DIMS, dtype=np.int32
+                )  # indices use numpy buffers
+                a_index: Index = np.empty(
+                    MAX_DIMS, dtype=np.int32
+                )  # indices use numpy buffers
+                b_index: Index = np.empty(
+                    MAX_DIMS, dtype=np.int32
+                )  # indices use numpy buffers
 
                 to_index(i, out_shape, out_index)
                 o = index_to_position(out_index, out_strides)
@@ -302,15 +316,17 @@ def tensor_reduce(
         # TODO: Implement for Task 3.1.
 
         reduce_size = a_shape[reduce_dim]
-        for i in prange(len(out)):
-            out_index = np.empty(MAX_DIMS, dtype=np.int32)
+        for i in prange(len(out)):  # main loop in parallel
+            out_index = np.empty(MAX_DIMS, dtype=np.int32)  # indices use numpy buffers
             to_index(i, out_shape, out_index)
 
             o = index_to_position(out_index, out_strides)
 
             reduced_val = out[o]
 
-            for s in range(reduce_size):
+            for s in range(
+                reduce_size
+            ):  # inner-loop should not call any functions or write non-local variables
                 out_index[reduce_dim] = s
                 j = index_to_position(out_index, a_strides)
                 reduced_val = fn(reduced_val, a_storage[j])
@@ -368,13 +384,15 @@ def _tensor_matrix_multiply(
 
     # TODO: Implement for Task 3.2.
 
-    for n in prange(out_shape[0]):
+    for n in prange(out_shape[0]):  # outer loop in parallel with no index buffers
         for i in range(out_shape[-2]):
             for j in range(out_shape[-1]):
                 val = 0
                 a_linear_index = n * a_batch_stride + i * a_strides[-2]
                 b_linear_index = n * b_batch_stride + j * b_strides[-1]
-                for _ in range(a_shape[-1]):
+                for _ in range(
+                    a_shape[-1]
+                ):  # inner loop with no global writes, 1 multiply
                     val += a_storage[a_linear_index] * b_storage[b_linear_index]
                     a_linear_index += a_strides[-1]
                     b_linear_index += b_strides[-2]
