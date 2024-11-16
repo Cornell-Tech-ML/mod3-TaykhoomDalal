@@ -344,6 +344,8 @@ None
 ## Module 3.4 Graph Comparison:
 <img src="matrix_multiplication_performance.png">
 
+See [compare_mm.py](./minitorch/compare_mm.py) for code to generate this plot.
+
 ## Module 3.5 Training Results:
 
 ### Simple Data Set
