@@ -1,7 +1,7 @@
 import time
 from typing import Dict, List
 import random
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # pyright: ignore[reportMissingImports]
 import minitorch
 from minitorch import TensorBackend
 
@@ -23,10 +23,13 @@ def benchmark_matrix_multiplication(
         start_time = time.time()
 
         # Perform tensor matrix multiplication
-        result = x @ y
+        result = x @ y  # pyright: ignore
 
         # Stop timer and record time
         end_time = time.time()
+
+        print(result.size)
+
         elapsed_time = end_time - start_time
         times.append(elapsed_time)
 
@@ -38,10 +41,12 @@ def plot_and_save_results(
 ) -> None:
     """Plot and save the benchmarking results."""
     # Plot CPU and GPU performance
-    plt.plot([m*m for m in matrix_sizes], cpu_times, label="CPU (Intel Xeon Platinum 8358)")
-    plt.plot([m*m for m in matrix_sizes], gpu_times, label="GPU (NVIDIA H100)")
+    plt.plot(
+        [m * m for m in matrix_sizes], cpu_times, label="CPU (Intel Xeon Platinum 8358)"
+    )
+    plt.plot([m * m for m in matrix_sizes], gpu_times, label="GPU (NVIDIA H100)")
     plt.xlabel("Matrix Size (NxN)")
-    plt.ticklabel_format(style='plain')
+    plt.ticklabel_format(style="plain")
     plt.ylabel("Time (seconds)")
     plt.title("Performance of Matrix Multiplication (CPU vs GPU)")
     plt.grid()
@@ -52,8 +57,8 @@ def plot_and_save_results(
     plt.savefig(output_filename, dpi=300, bbox_inches="tight")
 
 
-def main():
-
+def main() -> None:
+    """Main function to benchmark matrix multiplication on CPU and GPU."""
     matrix_sizes = [50, 100, 200, 500, 1000, 2500]
 
     # Set up tensor backends for CPU and GPU
@@ -76,7 +81,7 @@ def main():
     plot_and_save_results(matrix_sizes, cpu_times, gpu_times)
 
     # Print results
-    print("Matrix sizes (NxN):", [m*m for m in matrix_sizes])
+    print("Matrix sizes (NxN):", [m * m for m in matrix_sizes])
     print("CPU (Intel® Xeon® Platinum 8358) times:", cpu_times)
     print("GPU (NVIDIA H100) times:", gpu_times)
 
